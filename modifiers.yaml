@@ -1,3 +1,6 @@
 Magnus: 75
 Teresa: 95
 Kaya: 25
+Itoshi:
+  - 65
+  - fail: 5
