@@ -5,6 +5,7 @@ import logging
 import operator
 import random
 import yaml
+import re
 
 Player = namedtuple('Player', ['name', 'initiative', 'fail'])
 
@@ -12,6 +13,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument('file', type=str, help='File with modifiers.')
+    parser.add_argument("--japanize", "-j", help="Make things more anime", action='store_true')
 
     return parser.parse_args()
 
@@ -45,9 +47,43 @@ def roll_open(base_roll=0, success=90, fail=3):
 def roll_100():
     return random.randint(1,100)
 
-def show_initiatives(players):
+def load_hiragana():
+    result = dict()
+    with open('hiragana_table.txt') as f:
+        for l in f:
+            hiragana, romaji = l.rstrip().split(' ')
+            result[romaji] = hiragana
+
+    return result
+
+def japanize(hiragana_table, name):
+    """
+    >>> japanize({'ka':'か', 'ya': 'や'}, 'Kaya')
+    'かや'
+    >>> japanize({'ka':'か', 'ya': 'や'}, 'Jeff')
+    'Jeff'
+    >>> japanize({'ka':'か', 'ya': 'や'}, 'Kayan')
+    'Kayan'
+    """
+    original_name = name
+
+    for romaji in sorted(hiragana_table.keys(), key=len, reverse=True):
+        name = re.sub(romaji, hiragana_table[romaji], name, flags=re.IGNORECASE)
+
+    if re.search(r'[a-zA-Z]', name):
+        return original_name
+
+    return name
+
+
+def show_initiatives(players, japanize_names):
+    hiragana = load_hiragana()
     for player in players:
-        print('{}:\t{}'.format(player.name, player.initiative))
+        if japanize_names:
+            name = japanize(hiragana, player.name)
+        else:
+            name = player.name
+        print('{}:\t{}'.format(name, player.initiative))
 
 def main():
     args = parse_arguments()
@@ -56,7 +92,7 @@ def main():
     players = [roll_initiative(player, modifiers[player], failures.get(player, 3)) for player in modifiers]
 
     players = sorted(players, key=lambda player: player.initiative, reverse=True)
-    show_initiatives(players)
+    show_initiatives(players, args.japanize)
 
 if __name__ == '__main__':
     main()
