@@ -1,5 +1,6 @@
 import argparse
-from collections import namedtuple, Iterable
+from collections import namedtuple
+from collections.abc import Iterable
 import logging
 import operator
 import random
