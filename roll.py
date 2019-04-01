@@ -19,7 +19,7 @@ def parse_arguments():
 
 def read_modifiers(yaml_file):
     with open(yaml_file) as file:
-        modifiers = yaml.load(file)
+        modifiers = yaml.safe_load(file)
 
         failures = {}
         for player in modifiers:
