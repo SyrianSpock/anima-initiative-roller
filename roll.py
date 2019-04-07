@@ -79,8 +79,8 @@ def japanize(hiragana_table, name):
 def show_initiatives(players, japanize_names):
     hiragana = load_hiragana()
     for player in players:
-        if japanize_names:
-            name = japanize(hiragana, player.name)
+        if japanize_names and japanize(hiragana, player.name) != player.name:
+            name = '{} ({})'.format(player.name, japanize(hiragana, player.name))
         else:
             name = player.name
         print('{}:\t{}'.format(name, player.initiative))
